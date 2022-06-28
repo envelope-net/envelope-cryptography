@@ -22,8 +22,8 @@ public partial class PGPProvider : IPGPEncrypt, IPGPEncryptAndSign, IPGPSign, IP
 	public PGPProvider(IPGPOptions options)
 	{
 		_options = options ?? throw new ArgumentNullException(nameof(options));
-		var error = _options.Validate()?.ToString();
-		if (!string.IsNullOrWhiteSpace(error))
+		var error = _options.Validate();
+		if (0 < error?.Count)
 			throw new ConfigurationException(error);
 	}
 
@@ -33,8 +33,8 @@ public partial class PGPProvider : IPGPEncrypt, IPGPEncryptAndSign, IPGPSign, IP
 		configure?.Invoke(builder);
 		_options = builder.Build();
 
-		var error = _options.Validate()?.ToString();
-		if (!string.IsNullOrWhiteSpace(error))
+		var error = _options.Validate();
+		if (0 < error?.Count)
 			throw new ConfigurationException(error);
 	}
 
