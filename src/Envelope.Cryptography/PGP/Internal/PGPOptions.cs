@@ -1,11 +1,11 @@
 ﻿using Envelope.Text;
+using Envelope.Validation;
 using Org.BouncyCastle.Bcpg;
 using Org.BouncyCastle.Bcpg.OpenPgp;
-using System.Text;
 
 namespace Envelope.Cryptography.PGP.Internal;
 
-public class PGPOptions : IPGPOptions
+public class PGPOptions : IPGPOptions, IValidable
 {
 	public CompressionAlgorithmTag CompressionAlgorithm { get; set; } = CompressionAlgorithmTag.Uncompressed;
 
@@ -23,14 +23,14 @@ public class PGPOptions : IPGPOptions
 	public IEncryptionKeys EncryptionKeys { get; set; }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-	public StringBuilder? Validate(string? propertyPrefix = null, StringBuilder? parentErrorBuffer = null, Dictionary<string, object>? validationContext = null)
+	public List<IValidationMessage>? Validate(string? propertyPrefix = null, List<IValidationMessage>? parentErrorBuffer = null, Dictionary<string, object>? validationContext = null)
 	{
 		if (EncryptionKeys == null)
 		{
 			if (parentErrorBuffer == null)
-				parentErrorBuffer = new StringBuilder();
+				parentErrorBuffer = new List<IValidationMessage>();
 
-			parentErrorBuffer.AppendLine($"{StringHelper.ConcatIfNotNullOrEmpty(propertyPrefix, ".", nameof(EncryptionKeys))} == null");
+			parentErrorBuffer.Add(ValidationMessageFactory.Error($"{StringHelper.ConcatIfNotNullOrEmpty(propertyPrefix, ".", nameof(EncryptionKeys))} == null"));
 		}
 
 		return parentErrorBuffer;
