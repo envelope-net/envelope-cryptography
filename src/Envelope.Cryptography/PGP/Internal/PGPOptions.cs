@@ -1,5 +1,4 @@
-﻿using Envelope.Text;
-using Envelope.Validation;
+﻿using Envelope.Validation;
 using Org.BouncyCastle.Bcpg;
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
@@ -23,16 +22,17 @@ public class PGPOptions : IPGPOptions, IValidable
 	public IEncryptionKeys EncryptionKeys { get; set; }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-	public List<IValidationMessage>? Validate(string? propertyPrefix = null, List<IValidationMessage>? parentErrorBuffer = null, Dictionary<string, object>? validationContext = null)
+	public List<IValidationMessage>? Validate(
+		string? propertyPrefix = null,
+		ValidationBuilder? validationBuilder = null,
+		Dictionary<string, object>? globalValidationContext = null,
+		Dictionary<string, object>? customValidationContext = null)
 	{
-		if (EncryptionKeys == null)
-		{
-			if (parentErrorBuffer == null)
-				parentErrorBuffer = new List<IValidationMessage>();
+		validationBuilder ??= new ValidationBuilder();
+		validationBuilder.SetValidationMessages(propertyPrefix, globalValidationContext)
+			.IfNull(EncryptionKeys)
+			;
 
-			parentErrorBuffer.Add(ValidationMessageFactory.Error($"{StringHelper.ConcatIfNotNullOrEmpty(propertyPrefix, ".", nameof(EncryptionKeys))} == null"));
-		}
-
-		return parentErrorBuffer;
+		return validationBuilder.Build();
 	}
 }
